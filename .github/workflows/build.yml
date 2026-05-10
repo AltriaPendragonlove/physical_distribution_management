@@ -31,7 +31,7 @@ jobs:
         password: ${{ secrets.DOCKER_PASSWORD }}
 
     - name: Build Docker image
-      run: docker build -t yixinsaber/logistics-app .
+      run: docker build -t yixinsaber/logistics-app -f ${{ github.workspace }}/Dockerfile ${{ github.workspace }}
 
     - name: Push Docker image
       run: docker push yixinsaber/logistics-app
