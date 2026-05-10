@@ -36,4 +36,3 @@ jobs:
       run: |
         docker build -t yixinsaber/logistics-app:latest .
         docker push yixinsaber/logistics-app:latest
-
