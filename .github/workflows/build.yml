@@ -35,5 +35,3 @@ jobs:
 
     - name: Push Docker image
       run: docker push yixinsaber/logistics-app
-
-
