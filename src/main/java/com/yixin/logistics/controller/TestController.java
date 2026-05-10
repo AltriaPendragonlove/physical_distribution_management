@@ -8,7 +8,7 @@ public class TestController {
 
     @GetMapping("/hello")
     public String hello() {
-        return "后端已成功启动！接口正常工作！";
+        return "后端已成功启动！接口正常工作！版本2";
     }
 }
 
