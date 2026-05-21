@@ -1,0 +1,30 @@
+### 注册
+POST http://localhost:8080/auth/register
+Content-Type: application/json
+
+{
+  "username": "yixin",
+  "password": "123456",
+  "email": "test@test.com",
+  "fullName": "意新",
+  "phone": "123456789"
+}
+
+### 登录
+POST http://localhost:8080/auth/login
+Content-Type: application/json
+
+{
+  "username": "yixin",
+  "password": "123456"
+}
+
+### 测试 JWT 是否生效
+GET http://localhost:8080/test
+Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ5aXhpbiIsImlhdCI6MTc3OTI0MjE0OSwiZXhwIjoxNzc5MzI4NTQ5fQ.Ojd1srIjm7a74HaKpv_WLDMrP_aeqRJwCSEXYGACUZM
+
+### 获取所有用户
+GET http://localhost:8080/users
+Authorization: Bearer 你的token
+
+

@@ -10,5 +10,11 @@ public class TestController {
     public String hello() {
         return "后端已成功启动！接口正常工作！版本3";
     }
+
+    @GetMapping("/test")
+    public String test() {
+        return "JWT 已生效，你已成功通过认证";
+    }
+
 }
 
