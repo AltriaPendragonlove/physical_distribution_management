@@ -15,21 +15,20 @@ import java.time.LocalDateTime;
 public class OperationLog {
 
     @Id
-    @Column(length = 36)
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    private Long id;  // 自增主键
 
+    @Column(name = "user_id", length = 36)
     private String userId;
 
     @Column(length = 100)
     private String username;
 
     @Column(length = 100)
-    private String action; // 比如：LOGIN, UPDATE_PROFILE
+    private String action;
 
-    @Column(length = 255)
-    private String detail; // 具体描述
-
+    @Column(name = "created_at")
     private LocalDateTime createdAt;
 }
+
 

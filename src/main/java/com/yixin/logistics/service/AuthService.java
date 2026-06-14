@@ -2,10 +2,12 @@ package com.yixin.logistics.service;
 
 import com.yixin.logistics.entity.OperationLog;
 import com.yixin.logistics.entity.Role;
-import com.yixin.logistics.entity.User;
+import com.yixin.logistics.entity.UserAccount;
+import com.yixin.logistics.entity.UserRole;
 import com.yixin.logistics.repository.OperationLogRepository;
 import com.yixin.logistics.repository.RoleRepository;
 import com.yixin.logistics.repository.UserRepository;
+import com.yixin.logistics.repository.UserRoleRepository;
 import com.yixin.logistics.security.JwtTokenProvider;
 import com.yixin.logistics.web.LoginRequest;
 import com.yixin.logistics.web.RegisterRequest;
@@ -17,12 +19,14 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.Set;
+import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
 public class AuthService {
 
     private final UserRepository userRepository;
+    private final UserRoleRepository userRoleRepository;
     private final RoleRepository roleRepository;
     private final OperationLogRepository logRepository;
     private final PasswordEncoder passwordEncoder;
@@ -36,33 +40,29 @@ public class AuthService {
             throw new RuntimeException("用户名已存在");
         }
 
-        if (userRepository.existsByEmail(request.getEmail())) {
-            throw new RuntimeException("邮箱已被使用");
-        }
-
         // 默认角色：ROLE_USER
         Role userRole = roleRepository.findByName("ROLE_USER")
-                .orElseGet(() -> roleRepository.save(
-                        Role.builder().name("ROLE_USER").build()
-                ));
+                .orElseThrow(() -> new RuntimeException("角色不存在"));
 
-        User user = User.builder()
+        UserAccount user = UserAccount.builder()
+                .id(UUID.randomUUID().toString())
                 .username(request.getUsername())
-                .password(passwordEncoder.encode(request.getPassword()))
-                .email(request.getEmail())
-                .fullName(request.getFullName())
-                .phone(request.getPhone())
-                .roles(Set.of(userRole))
+                .passwordHash(passwordEncoder.encode(request.getPassword()))
                 .build();
 
         userRepository.save(user);
 
-        // 记录日志
+        userRoleRepository.save(
+                UserRole.builder()
+                        .userId(user.getId())
+                        .roleId(userRole.getId())
+                        .build()
+        );
+
         logRepository.save(OperationLog.builder()
                 .userId(user.getId())
                 .username(user.getUsername())
                 .action("REGISTER")
-                .detail("用户注册")
                 .createdAt(LocalDateTime.now())
                 .build());
     }
@@ -76,21 +76,23 @@ public class AuthService {
                 )
         );
 
-        User user = userRepository.findByUsername(request.getUsername())
+        UserAccount user = userRepository.findByUsername(request.getUsername())
                 .orElseThrow(() -> new RuntimeException("用户不存在"));
 
-        // 生成 JWT
+        if (!user.isEnabled()) {
+            throw new RuntimeException("用户已被禁用");
+        }
+
         String token = jwtTokenProvider.createToken(user.getUsername());
 
-        // 记录日志
         logRepository.save(OperationLog.builder()
                 .userId(user.getId())
                 .username(user.getUsername())
                 .action("LOGIN")
-                .detail("用户登录")
                 .createdAt(LocalDateTime.now())
                 .build());
 
         return token;
     }
 }
+

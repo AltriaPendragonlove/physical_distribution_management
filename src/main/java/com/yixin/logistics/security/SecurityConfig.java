@@ -14,6 +14,7 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.http.HttpMethod;
 
 
 
@@ -21,8 +22,10 @@ import org.springframework.security.web.SecurityFilterChain;
 @EnableWebSecurity
 @RequiredArgsConstructor
 public class SecurityConfig {
+
     private final JwtAuthenticationFilter jwtFilter;
     private final UserDetailsService userDetailsService;
+
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
 
@@ -31,12 +34,19 @@ public class SecurityConfig {
                         sm.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/auth/**").permitAll()
+                        .requestMatchers("/error").permitAll()
                         .requestMatchers("/users").hasRole("ADMIN")
+                        .requestMatchers("/users/*/roles").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.DELETE, "/users/*/roles/*").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.PATCH, "/users/*/disable").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.PATCH, "/users/*/enable").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.DELETE, "/users/*").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.GET, "/users/page").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.PATCH, "/users/me/password").authenticated()
+                        .requestMatchers(HttpMethod.PATCH, "/users/*/reset-password").hasRole("ADMIN")
                         .anyRequest().authenticated()
                 )
-        //  把 JWT 过滤器加在 UsernamePasswordAuthenticationFilter 之前
-                .authenticationProvider(authenticationProvider())   // ⭐ 必须加
-            .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
+                .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
     }
@@ -47,9 +57,8 @@ public class SecurityConfig {
     }
 
     @Bean
-    public AuthenticationManager authenticationManager(
-            AuthenticationConfiguration configuration) throws Exception {
-        return configuration.getAuthenticationManager();
+    public AuthenticationManager authenticationManager(AuthenticationConfiguration config) throws Exception {
+        return config.getAuthenticationManager();
     }
 
     @Bean
@@ -59,5 +68,5 @@ public class SecurityConfig {
         provider.setPasswordEncoder(passwordEncoder());
         return provider;
     }
-
 }
+

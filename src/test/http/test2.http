@@ -1,0 +1,90 @@
+POST http://localhost:8080/auth/register
+Content-Type: application/json
+
+{
+  "username": "admin",
+  "password": "123456"
+}
+
+### 登录
+POST http://localhost:8080/auth/login
+Content-Type: application/json
+
+{
+  "username": "admin",
+  "password": "123456"
+}
+
+### 获取用户列表（管理员）
+GET http://localhost:8080/users
+Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJhZG1pbiIsImlhdCI6MTc4MTQ0NTczNSwiZXhwIjoxNzgxNTMyMTM1fQ.SPwIWJqhQYKJu-_k3H2cL3EQjoUO7PDg4bVIOVHD8Ck
+
+### 给用户分配角色（管理员）
+POST http://localhost:8080/users/0b6c48b1-8ae0-4e2b-ba6b-a789c72dfe8e/roles
+Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJhZG1pbiIsImlhdCI6MTc4MTQ1MTY0MSwiZXhwIjoxNzgxNTM4MDQxfQ.WgTkMKqiLQh-L_9I90D3w0bBjhbAYVYexrldE7_ucyo
+Content-Type: application/json
+
+{
+  "role": "ROLE_ADMIN"
+}
+
+### 注册用户
+POST http://localhost:8080/auth/register
+Content-Type: application/json
+
+{
+  "username": "testuser2",
+  "password": "123456"
+}
+
+### 移除角色
+DELETE http://localhost:8080/users/0b6c48b1-8ae0-4e2b-ba6b-a789c72dfe8e/roles/ROLE_ADMIN
+Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJhZG1pbiIsImlhdCI6MTc4MTQ1MjIyNywiZXhwIjoxNzgxNTM4NjI3fQ.ZhOjUeUXLFcQUJONZgOIcIvn1QZ3MCxn0maKOHAEYBQ
+
+### 实现禁用用户接口（管理员）
+PATCH http://localhost:8080/users/0b6c48b1-8ae0-4e2b-ba6b-a789c72dfe8e/disable
+Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJhZG1pbiIsImlhdCI6MTc4MTQ1NDA3NCwiZXhwIjoxNzgxNTQwNDc0fQ.l9mvDEd-RZrOZPXPtrIQN1cURCmOTgMfD3qAq1CXdvk
+
+### 登录2
+POST http://localhost:8080/auth/login
+Content-Type: application/json
+
+{
+  "username": "testuser2",
+  "password": "123456"
+}
+
+### 实现启用用户接口（管理员）
+PATCH http://localhost:8080/users/0b6c48b1-8ae0-4e2b-ba6b-a789c72dfe8e/enable
+Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJhZG1pbiIsImlhdCI6MTc4MTQ1NDI1NywiZXhwIjoxNzgxNTQwNjU3fQ.e4w-vlSvv2G7lcJp0rw-niF7pSe9GyFtknqiJmIs_JY
+
+### 分页查询用户（管理员）
+#page：第几页（从 0 开始）
+#size：每页多少条
+#返回值是 Page<UserAccount>，包含：
+#content（数据列表）
+#totalPages（总页数）
+#totalElements（总记录数）
+#number（当前页）
+#size（每页大小）
+GET http://localhost:8080/users/page?page=0&size=5
+Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJhZG1pbiIsImlhdCI6MTc4MTQ1NTQ1NSwiZXhwIjoxNzgxNTQxODU1fQ.pPKJKUtCh3m95UPXzCzM_wiE135kilZ4eHYRsHE1v8E
+
+### 修改密码（用户自己）
+PATCH http://localhost:8080/users/me/password
+Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ0ZXN0dXNlcjIiLCJpYXQiOjE3ODE0NTc4MDEsImV4cCI6MTc4MTU0NDIwMX0.1kT4qG3ooKfuiKpIys_xaMSU3vVT1D6FepcpKrLq0NU
+Content-Type: application/json
+
+{
+  "oldPassword": "654321",
+  "newPassword": "123456"
+}
+
+###管理员重置密码
+PATCH http://localhost:8080/users/0b6c48b1-8ae0-4e2b-ba6b-a789c72dfe8e/reset-password
+Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJhZG1pbiIsImlhdCI6MTc4MTQ1ODEwOSwiZXhwIjoxNzgxNTQ0NTA5fQ.7uv-xFktodu2nM2nZClY1bd_VXLc9gPeUBHZzGcf3gE
+Content-Type: application/json
+
+{
+  "newPassword": "123456"
+}
